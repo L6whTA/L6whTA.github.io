@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <!-- Other -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.4.2/handlebars.min.js"></script>
+
+    <title>Learning to Evaluate Perception Models using Planner-Centric Metrics</title>
+  </head>
+  <body>
+
+
+    <h1>Supplementary Material</h1>
+
+    <nav>
+      <div class="nav nav-tabs" id="nav-tab" role="tablist">
+        <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">AMT Survey</a>
+        <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Planner Visual</a>
+      </div>
+    </nav>
+    <div class="tab-content" id="nav-tabContent">
+
+      <!-- The survey results -->
+      <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
+          <span class="border">
+          <h4 class="text-center">Description</h4>
+          <p>We sort the 70 scenarios by the percentage of workers who agreed with PKL (shown in the title of each card). Scenarios where humans mostly agreed with PKL are at the top; scenarios where humans mostly disagreed are at the bottom.
+          <p>The scene that PKL considers more dangerous is boxed in green. NDS considers the unboxed scene more dangerous.</p>
+          <p>All comments that the workers wrote are shown to the right. The comment is colored <font color="green">green</font> if the commenter agreed with PKL and colored <font color="red">red</font> if the commenter disagreed with PKL.</p>
+          </span>
+          <div id="quizzes"></div>
+      
+          <script src='./results.json'></script>
+          <script>
+            var source = `
+            <div class="card mb-3 border-secondary">
+              <div class="card-header">
+                Score: {{ numcorrect }}/{{ numpickers }} = <b>{{ score }}</b>
+              </div>
+              <div class="card-body">
+              <div class="row">
+                <div class="col-sm-6">
+                  <img src={{ url0 }} height=200 {{{ img0extra }}}>
+                  <img src={{ url1 }} height=200 {{{ img1extra }}}>
+                </div>
+                <div class="col-sm-6">
+                  <div class="card-body">
+                    <h5 class="card-title">Mechanical Turk Comments</h5>
+                    {{{ comments }}}
+                  </div>
+                </div>
+              </div>
+              </div>
+            </div>
+                    `;
+            var template = Handlebars.compile(source);
+            var container = document.getElementById('quizzes');
+      
+            for (i=0; i<mydata.length; i++) {
+              row = mydata[i];
+      
+              // comments (no for loop in template language)
+              var comments = `<ul class="list-group" style="max-height: 130px; margin-bottom: 10px; overflow:scroll; -webkit-overflow-scrolling: touch;">`
+              for (j=0; j<row['comments'].length; j++) {
+                if (row['comments'][j].length > 0) {
+                  if (row['correct'][j] == 1) {
+                    color = 'green';
+                  }
+                  else {
+                    color = 'red';
+                  }
+                  comments += `<li class="list-group-item" style="color: ` + color + `">` + row['comments'][j] + `</li>`;}
+              }
+              comments += `</ul>`;
+      
+              img0extra = ``;
+              img1extra = ``;
+              if (row['img0'] % 2 == 0) {
+                img1extra = `style="border:5px solid green"`;}
+              else {
+                img0extra = `style="border:5px solid green"`;}
+      
+              result = template({
+                  'numcorrect': row['correct'].reduce((a, b) => a + b, 0),
+                  'numpickers': row['correct'].length,
+                  'score': row['score'].toFixed(2),
+                  'url0': `https://github.com/L6whTA/L6whTA.github.io/blob/master/imgs/` + row['img0'].toString().padStart(7, 0) + '.gif?raw=true',
+                  'url1': `https://github.com/L6whTA/L6whTA.github.io/blob/master/imgs/` + row['img1'].toString().padStart(7, 0) + '.gif?raw=true',
+                  'comments': comments,
+                  'img0extra': img0extra,
+                  'img1extra': img1extra,
+                  });
+              var ele = document.createElement('div', {'class': 'card'});
+              ele.innerHTML = result;
+              container.appendChild(ele);
+            }
+      
+          </script>
+      </div>
+
+
+      <!-- The planner results -->
+      <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
+        <span class="border">
+          <h4 class="text-center">Description</h4>
+          <p>Because we train on all labeled vehicles in the training set, our planner is in theory capable of forecasting in the frame of any detected vehicle in the validation set. For simplicity, we visualize the heatmaps for all future timesteps as a single color with varying transparency. Different objects are given one of ten different colors to facilitate matching between cars and heatmaps.</p>
+        </span>
+        <div class="embed-responsive embed-responsive-16by9">
+          <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/uS81v4z1eZc" allowfullscreen></iframe>
+        </div>
+        <div class="embed-responsive embed-responsive-16by9">
+          <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/FxA5hoCA1wY" allowfullscreen></iframe>
+        </div>
+        <div class="embed-responsive embed-responsive-16by9">
+          <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/zgfFZ_J8SPA" allowfullscreen></iframe>
+        </div>
+        <div class="embed-responsive embed-responsive-16by9">
+          <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/Zb-i1YhdJPM" allowfullscreen></iframe>
+        </div>
+        <div class="embed-responsive embed-responsive-16by9">
+          <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/wjdaTHNLLmI" allowfullscreen></iframe>
+        </div>
+        <div class="embed-responsive embed-responsive-16by9">
+          <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/lzHcyLY0ayg" allowfullscreen></iframe>
+        </div>
+        <div class="embed-responsive embed-responsive-16by9">
+          <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/qUXPJAxw9HM" allowfullscreen></iframe>
+        </div>
+        <div class="embed-responsive embed-responsive-16by9">
+          <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/mwliL3Q_MCo" allowfullscreen></iframe>
+        </div>
+      </div>
+
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  </body>
+</html>
