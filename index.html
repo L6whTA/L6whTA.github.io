@@ -15,11 +15,20 @@
   </head>
   <body>
 
+    <!-- header -->
+    <div class='jumbotron'>
+    <div class="container">
+    <h1 class="text-center">Learning to Evaluate Perception Models using Planner-Centric Metrics</h1>
+    <p>
+        Variants of accuracy and precision are the gold-standard by which the computer vision community measures progress. One reason for the ubiquity of these metrics is that they are largely task-agnostic; we in general seek to detect zero false negatives or positives. The downside of these metrics is that, at worst, they penalize all incorrect detections equally without conditioning on the task or scene, and at best, heuristics need to be chosen to ensure that different mistakes count differently. In this paper, we propose a principled metric for 3D object detection specifically for the task of self-driving. The core idea behind our metric is to isolate the task of object detection and measure the impact the produced detections would induce on the downstream task of driving. Without hand-designing it to, we find that our metric penalizes many of the mistakes that other metrics penalize by design. In addition, our metric downweights detections based on additional factors such as distance from a detection to the ego car and the speed of the detection in intuitive ways that other detection metrics do not. For human evaluation, we generate scenes in which standard metrics and our metric disagree and find that humans agree with our metric 80\% of the time. We plan to release a publicly available server for evaluating 3D object detectors using our metrics with the aim to better judge readiness of current detectors for deployment on real self-driving platforms.
+    </p>
+    </div>
+    </div>
 
-    <h1>Supplementary Material</h1>
+    <div class="container">
 
     <nav>
-      <div class="nav nav-tabs" id="nav-tab" role="tablist">
+      <div class="nav nav-pills justify-content-center" id="nav-tab" role="tablist">
         <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">AMT Survey</a>
         <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Planner Visual</a>
       </div>
@@ -28,86 +37,19 @@
 
       <!-- The survey results -->
       <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
-          <span class="border">
-          <h4 class="text-center">Description</h4>
-          <p>We sort the 70 scenarios by the percentage of workers who agreed with PKL (shown in the title of each card). Scenarios where humans mostly agreed with PKL are at the top; scenarios where humans mostly disagreed are at the bottom.
-          <p>The scene that PKL considers more dangerous is boxed in green. NDS considers the unboxed scene more dangerous.</p>
-          <p>All comments that the workers wrote are shown to the right. The comment is colored <font color="green">green</font> if the commenter agreed with PKL and colored <font color="red">red</font> if the commenter disagreed with PKL.</p>
-          </span>
-          <div id="quizzes"></div>
-      
-          <script src='./results.json'></script>
-          <script>
-            var source = `
-            <div class="card mb-3 border-secondary">
-              <div class="card-header">
-                Score: {{ numcorrect }}/{{ numpickers }} = <b>{{ score }}</b>
-              </div>
-              <div class="card-body">
-              <div class="row">
-                <div class="col-sm-6">
-                  <img src={{ url0 }} height=200 {{{ img0extra }}}>
-                  <img src={{ url1 }} height=200 {{{ img1extra }}}>
-                </div>
-                <div class="col-sm-6">
-                  <div class="card-body">
-                    <h5 class="card-title">Mechanical Turk Comments</h5>
-                    {{{ comments }}}
-                  </div>
-                </div>
-              </div>
-              </div>
-            </div>
-                    `;
-            var template = Handlebars.compile(source);
-            var container = document.getElementById('quizzes');
-      
-            for (i=0; i<mydata.length; i++) {
-              row = mydata[i];
-      
-              // comments (no for loop in template language)
-              var comments = `<ul class="list-group" style="max-height: 130px; margin-bottom: 10px; overflow:scroll; -webkit-overflow-scrolling: touch;">`
-              for (j=0; j<row['comments'].length; j++) {
-                if (row['comments'][j].length > 0) {
-                  if (row['correct'][j] == 1) {
-                    color = 'green';
-                  }
-                  else {
-                    color = 'red';
-                  }
-                  comments += `<li class="list-group-item" style="color: ` + color + `">` + row['comments'][j] + `</li>`;}
-              }
-              comments += `</ul>`;
-      
-              img0extra = ``;
-              img1extra = ``;
-              if (row['img0'] % 2 == 0) {
-                img1extra = `style="border:5px solid green"`;}
-              else {
-                img0extra = `style="border:5px solid green"`;}
-      
-              result = template({
-                  'numcorrect': row['correct'].reduce((a, b) => a + b, 0),
-                  'numpickers': row['correct'].length,
-                  'score': row['score'].toFixed(2),
-                  'url0': `https://github.com/L6whTA/L6whTA.github.io/blob/master/imgs/` + row['img0'].toString().padStart(7, 0) + '.gif?raw=true',
-                  'url1': `https://github.com/L6whTA/L6whTA.github.io/blob/master/imgs/` + row['img1'].toString().padStart(7, 0) + '.gif?raw=true',
-                  'comments': comments,
-                  'img0extra': img0extra,
-                  'img1extra': img1extra,
-                  });
-              var ele = document.createElement('div', {'class': 'card'});
-              ele.innerHTML = result;
-              container.appendChild(ele);
-            }
-      
-          </script>
+        <span class="border border-white">
+        <h4 class="text-center">Description</h4>
+        <p>We sort the 75 scenarios by the percentage of workers who agreed with PKL (shown in the title of each card). Scenarios where humans mostly agreed with PKL are at the top; scenarios where humans mostly disagreed are at the bottom.
+        <p>The scene that PKL considers more dangerous is boxed in <font color="green">green</font>. NDS considers the unboxed scene more dangerous.</p>
+        <p>All comments that the workers wrote are shown to the right. The comment is colored <font color="green">green</font> if the commenter agreed with PKL and colored <font color="red">red</font> if the commenter disagreed with PKL.</p>
+        </span>
+        <div id="quizzes"></div>
       </div>
 
 
       <!-- The planner results -->
       <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-        <span class="border">
+          <span class="border border-white">
           <h4 class="text-center">Description</h4>
           <p>Because we train on all labeled vehicles in the training set, our planner is in theory capable of forecasting in the frame of any detected vehicle in the validation set. For simplicity, we visualize the heatmaps for all future timesteps as a single color with varying transparency. Different objects are given one of ten different colors to facilitate matching between cars and heatmaps.</p>
         </span>
@@ -136,6 +78,80 @@
           <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/mwliL3Q_MCo" allowfullscreen></iframe>
         </div>
       </div>
+
+      </div>
+
+      <!-- Add gifs -->
+      <script src='./results.json'></script>
+      <script>
+        var source = `
+        <div class="card mb-3 border-secondary">
+          <div class="card-header">
+            <div class="float-left">Score: {{ numcorrect }}/{{ numpickers }} = <b>{{ score }}</b></div>
+            <div class="text-right">Scenario {{ index }}</div>
+            <div class="clearfix"></div>
+          </div>
+          <div class="card-body">
+          <div class="row">
+            <div class="col-sm-8">
+              <img src={{ url0 }} height=240 {{{ img0extra }}}>
+              <img src={{ url1 }} height=240 {{{ img1extra }}}>
+            </div>
+            <div class="col-sm-4">
+              <div class="card-body">
+                <h5 class="card-title">Mechanical Turk Comments</h5>
+                {{{ comments }}}
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+                `;
+        var template = Handlebars.compile(source);
+        var container = document.getElementById('quizzes');
+  
+        for (i=0; i<mydata.length; i++) {
+          row = mydata[i];
+  
+          // comments (no for loop in template language)
+          var comments = `<ul class="list-group" style="max-height: 130px; margin-bottom: 10px; overflow:scroll; -webkit-overflow-scrolling: touch;">`
+          for (j=0; j<row['comments'].length; j++) {
+            if (row['comments'][j].length > 0) {
+              if (row['correct'][j] == 1) {
+                color = 'green';
+              }
+              else {
+                color = 'red';
+              }
+              comments += `<li class="list-group-item" style="color: ` + color + `">` + row['comments'][j] + `</li>`;}
+          }
+          comments += `</ul>`;
+  
+          img0extra = ``;
+          img1extra = ``;
+          if (row['img0'] % 2 == 0) {
+            img1extra = `style="border:5px solid green"`;}
+          else {
+            img0extra = `style="border:5px solid green"`;}
+  
+          result = template({
+              'numcorrect': row['correct'].reduce((a, b) => a + b, 0),
+              'numpickers': row['correct'].length,
+              'score': row['score'].toFixed(2),
+              'url0': `https://github.com/L6whTA/L6whTA.github.io/blob/master/imgs/` + row['img0'].toString().padStart(7, 0) + '.gif?raw=true',
+              'url1': `https://github.com/L6whTA/L6whTA.github.io/blob/master/imgs/` + row['img1'].toString().padStart(7, 0) + '.gif?raw=true',
+              'comments': comments,
+              'img0extra': img0extra,
+              'img1extra': img1extra,
+              'index': i,
+              });
+          var ele = document.createElement('div', {'class': 'card'});
+          ele.innerHTML = result;
+          container.appendChild(ele);
+        }
+  
+      </script>
+
 
 
     <!-- Optional JavaScript -->
