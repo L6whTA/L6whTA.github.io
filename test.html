@@ -1,0 +1,265 @@
+<html>
+  <head>
+    <title>Write sentences to describe images</title>
+    <!-- simpleamt depends on these libraries -->
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/json3/3.3.2/json3.min.js'></script>    
+    <!-- end of required libraries -->
+    <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js'></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      #text-area {
+        margin: 10px 0;
+        font-size: 24pt;
+      }
+      #button-div {
+        margin-bottom: 10px;
+      }
+      #counter {
+        margin: 0 10px;
+        font-size: 20pt;
+        font-weight: bold;
+      }
+      .image-container {
+        width: 80%;
+        margin: 10%;
+      }
+      .selected {
+        border-style: solid;
+        border-width: 10px;
+        border-color: red;
+      }
+      img{
+        width: 100%;
+        max-width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div class='container'>
+      <center>
+          <h2>You are sitting in a yellow self-driving car named <b>Herbie.</b></h2>
+          <p>Herbie has been programmed to detect objects (such as cars and people) around it but unfortunately the program has several issues. For instance, sometimes Herbie sees cars at strange angles or a few meters from where the cars are in the real world. Sometimes, Herbie doesn't even detect cars that are right in front of it. Herbie also detects "ghost cars" right next to him that are nonexistent in the real world!</p><br>
+          <p>We want to find the scenarios where Herbie made mistakes that were <b>especially dangerous</b>. In which of the two examples below are the mistakes that Herbie made <b>more likely to cause Herbie to crash into another car</b>?</p>
+          <p>The real world cars, pedestrians, barriers (sidewalks, buildings, traffic poles, etc), and bicycles are shown below in <font color="green">green</font>. The cars, pedestrians, barriers, and bicycles that Herbie detects are shown below in <font color="red">red</font>. The sidewalks and road boundaries in the town where Herbie drives are shown in <font color="grey">grey</font>.</p>
+          <p>If a real car is missed by Herbie, this car will <b>not</b> be outlined with a red rectangle.</p>
+          <p><b>Note: </b>We know this is hard - give us your best guess! If you believe both scenarios are equally dangerous, please feel free to leave the slider close to the middle.</p>
+      </center>
+    </div>
+
+    <div class='container-fluid'>
+      <div class='row'>
+        <div class='col-xs-6 text-center'>
+          <div id='img-0'class='image-container'></div>
+        </div>
+        <div class='col-xs-6 text-center'>
+          <div id='img-1'class='image-container'></div>
+        </div>
+      </div>
+      <div class='row'>
+        <div class='col-xs-4 col-xs-offset-4'>
+          <label for="choice">Which mistakes are more dangerous?</label>
+          <input type="range" class="custom-range" min="0" max="1" step="0.01" id="choice" 
+            oninput="updateChoice(this.value)">
+          <textarea id="text-area" placeholder="Explanation (optional)"></textarea>
+        </div>
+        <div class='col-xs-4 col-xs-offset-4 text-center' id='button-div'>
+          <button id='prev-btn' class='btn btn-lg btn-primary' disabled>Back</button>
+          <span id='counter'>
+            <span class='counter-top'></span> / <span class='counter-bottom'></span>
+          </span>
+          <button id='next-btn' class='btn btn-lg btn-primary' disabled>Next</button>
+        </div>
+      </div>
+    </div>
+
+    <script type='text/json' id='input'>
+        {{ input }}
+      </script>
+      <form id='results-form' method='post' action='test/data' class='text-center'>
+        <input type='hidden' value='' name='assignmentId' id='assignmentId'/>
+        <input type='hidden' value='hellllllloooo' name='output' id='output'/>
+        <input class='btn btn-lg btn-success' id='submit-btn' value='Submit' disabled/>          
+      </form>
+      <script>
+        var simpleamt = (function() {
+          
+          // Copied from http://james.padolsey.com/javascript/bujs-1-getparameterbyname/
+          function getUrlParam(name) {
+            var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+            return match ? decodeURIComponent(match[1].replace(/\+/g, ' ')) : null;
+          }
+      
+          function getInput(default_input) {
+            if (typeof(default_input) === 'undefined') default_input = null;
+            try {
+              return JSON.parse($('#input').html());
+            } catch (e) {
+              return default_input;
+            }
+          }
+      
+          function setOutput(output) {
+            $('#output').val(JSON.stringify(output));
+          }
+      
+          function isPreview() {
+            var assignment_id = getUrlParam('assignmentId');
+            if (assignment_id === null) return false;
+            return assignment_id == 'ASSIGNMENT_ID_NOT_AVAILABLE';
+          }
+      
+          function setupSubmit() {
+            var submit_to = getUrlParam('turkSubmitTo');
+            $('#results-form').attr('action', '/test/data');                      
+            $('#assignmentId').val(getUrlParam('assignmentId'));
+          }
+      
+          return {
+            getInput: getInput,
+            setOutput: setOutput,
+            isPreview: isPreview,
+            setupSubmit: setupSubmit,
+          }
+      
+        })();
+      </script>
+      
+
+    <script>
+      function updateChoice(val) {
+        $('#img-0').removeClass('selected');
+        $('#img-1').removeClass('selected');
+        if (val < 0.5){
+          $('#img-0').addClass('selected');
+        }
+        else if (val > 0.5){
+          $('#img-1').addClass('selected');
+        }
+      };
+
+      $(function() {
+
+        // Define some default input.
+        var DEFAULT_INPUT = [["http://www.cs.toronto.edu/~jphilion/gifs/0000026.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000027.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000012.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000013.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000003.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000002.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000134.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000135.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000112.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000113.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000001.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000000.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000138.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000139.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000086.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000087.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000060.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000061.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000129.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000128.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000117.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000116.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000095.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000094.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000130.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000131.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000006.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000007.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000037.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000036.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000100.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000101.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000110.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000111.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000118.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000119.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000041.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000040.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000084.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000085.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000074.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000075.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000039.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000038.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000109.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000108.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000125.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000124.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000099.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000098.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000126.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000127.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000068.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000069.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000076.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000077.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000136.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000137.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000008.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000009.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000122.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000123.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000045.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000044.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000141.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000140.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000017.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000016.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000004.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000005.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000023.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000022.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000021.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000020.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000104.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000105.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000091.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000090.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000034.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000035.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000066.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000067.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000142.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000143.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000103.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000102.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000047.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000046.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000132.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000133.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000063.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000062.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000114.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000115.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000089.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000088.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000096.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000097.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000056.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000057.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000082.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000083.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000148.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000149.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000071.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000070.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000011.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000010.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000092.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000093.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000029.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000028.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000052.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000053.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000072.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000073.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000058.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000059.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000147.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000146.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000106.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000107.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000120.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000121.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000054.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000055.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000144.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000145.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000032.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000033.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000080.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000081.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000049.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000048.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000024.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000025.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000019.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000018.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000078.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000079.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000050.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000051.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000064.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000065.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000031.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000030.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000014.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000015.gif"], ["http://www.cs.toronto.edu/~jphilion/gifs/0000042.gif", "http://www.cs.toronto.edu/~jphilion/gifs/0000043.gif"]];
+
+        var input = null;
+
+        // Choice of which is better
+        var choices = [];
+        var texts = [];
+        // Some variables to track state of the HIT.
+        var idx = 0;
+        var enabled = false;
+
+        function main() {
+          // If this is a HIT on AMT, then replace the default input with the real input.
+          input = simpleamt.getInput(DEFAULT_INPUT);
+          input = _.sample(input, 5);
+
+          // Enable the UI if the HIT is not in preview mode.
+          if (!simpleamt.isPreview()) {
+            enable_hit();
+          }
+
+          // Set up the default choices
+          _.each(input, function() { choices.push(0.5); texts.push(''); });
+
+          // Preload all images
+          var imgs = [];
+          _.each(input, function(img_urls) {
+            _.each(img_urls, function(img_url){
+              var img = new Image();
+              img.onload = function() { console.log('loaded image from ' + img_url); };
+              img.src = img_url;
+            });
+          });
+
+          render();
+        }
+
+        // Use the current index to update the image and description
+        function render() {
+          // Set up the image
+          $('#img-0').empty();
+          $('#img-1').empty();
+          $('<img>').attr('src', input[idx][0]).appendTo($('#img-0'));
+          $('<img>').attr('src', input[idx][1]).appendTo($('#img-1'));
+
+          // Set up the choice
+          $('#choice').val(choices[idx]);
+          $('#text-area').val(texts[idx]);
+          updateChoice(choices[idx]);
+
+          // Refresh the counter
+          $('.counter-top').text(idx + 1);
+          $('.counter-bottom').text(input.length);
+
+          // If the UI is enabled, enable or disable the buttons depending on
+          // the index.
+          if (enabled) {
+            var prev_btn = $('#prev-btn');
+            var next_btn = $('#next-btn');
+            prev_btn.prop('disabled', true);
+            next_btn.prop('disabled', true);
+            if (idx > 0) {
+              prev_btn.prop('disabled', false);
+            }
+            if (idx < input.length - 1) next_btn.prop('disabled', false);
+          }
+        }
+
+        // Update the index, and save the text in the text area.
+        function set_idx(new_idx) {
+          if (new_idx < 0 || new_idx >= input.length) return;
+          choices[idx] = $('#choice').val();
+          texts[idx] = $('#text-area').val();
+
+          idx = new_idx;
+          render();
+        }
+
+        // Enable the UI.
+        function enable_hit() {
+          enabled = true;
+
+          // Enable components
+          $('#next-btn').click(function() { set_idx(idx + 1) });
+          $('#prev-btn').click(function() { set_idx(idx - 1) });
+          $('#text-area').prop('disabled', false);
+          $('#submit-btn').prop('disabled', false);
+
+          // Set up submit handler.
+          // simpleamt.setupSubmit();
+          $('#submit-btn').click(function() {
+            choices[idx] = $('#choice').val();
+            texts[idx] = $('#text-area').val();
+            if (_.any(choices, function(d) { return d == 0.5; })) {
+              alert('Some choices not selected. Please select before submitting.');
+              return false;
+            }
+            output = [];
+            for (i = 0; i<input.length; i++) {
+              output.push({
+                'image_urls': input[i],
+                'choice': choices[i],
+                'text': texts[i],
+              });
+            }
+            // var output = _.map(_.zip(_.zip(input, choices), texts) , function(x) {
+            //   return {'image_urls': x[0], 'choice': x[1], 'text': x[2]};
+            // });
+            console.log(output);
+            $.post('/test/data', JSON.stringify(output));
+            document.getElementById("submit-btn").disabled=true;
+            document.getElementById("submit-btn").value = "Submitted. Thank you!"
+            // simpleamt.setOutput(output);
+          });
+        }
+
+        main();
+      });
+    </script>
+  </body>
+</html>
